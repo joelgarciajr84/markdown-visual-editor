@@ -1,0 +1,15 @@
+.vscode/**
+.github/**
+src/**
+node_modules/**
+**/*.map
+**/tsconfig.json
+esbuild.js
+.gitignore
+.vscodeignore
+PUBLISHING.md
+media/icon.svg
+**/*.ts
+**/*.tsx
+!dist/**
+dist/**/*.map

@@ -1,0 +1,140 @@
+{
+  "name": "markdown-visual-editor",
+  "displayName": "Markdown Visual Editor",
+  "description": "Edite arquivos Markdown em modo WYSIWYG (visual, tipo Notion/Typora) dentro do VS Code, com sincronização bidirecional e alternância para o editor de código.",
+  "version": "0.1.0",
+  "publisher": "JoelGarciaJr",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1E1B2E",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joelgarciajr84/markdown-visual-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/joelgarciajr84/markdown-visual-editor/issues"
+  },
+  "homepage": "https://github.com/joelgarciajr84/markdown-visual-editor#readme",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Visualization",
+    "Formatters",
+    "Other"
+  ],
+  "keywords": [
+    "markdown",
+    "wysiwyg",
+    "editor",
+    "notion",
+    "typora"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "markdownVisualEditor.editor",
+        "displayName": "Markdown Visual Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "markdownVisualEditor.openAsVisual",
+        "title": "Markdown: Abrir no Editor Visual",
+        "category": "Markdown Visual Editor",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "markdownVisualEditor.openAsSource",
+        "title": "Markdown: Abrir como Código (Source)",
+        "category": "Markdown Visual Editor",
+        "icon": "$(code)"
+      },
+      {
+        "command": "markdownVisualEditor.toggleMode",
+        "title": "Markdown: Alternar entre Visual e Código",
+        "category": "Markdown Visual Editor",
+        "icon": "$(arrow-swap)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "markdownVisualEditor.openAsSource",
+          "when": "activeCustomEditorId == markdownVisualEditor.editor",
+          "group": "navigation@1"
+        },
+        {
+          "command": "markdownVisualEditor.openAsVisual",
+          "when": "resourceExtname == .md && activeCustomEditorId != markdownVisualEditor.editor",
+          "group": "navigation@1"
+        },
+        {
+          "command": "markdownVisualEditor.openAsVisual",
+          "when": "resourceExtname == .markdown && activeCustomEditorId != markdownVisualEditor.editor",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "markdownVisualEditor.toggleMode",
+          "when": "resourceExtname == .md || resourceExtname == .markdown"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "markdownVisualEditor.toggleMode",
+        "key": "alt+m",
+        "when": "resourceExtname == .md || resourceExtname == .markdown"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "node esbuild.js && npm run typecheck",
+    "watch": "node esbuild.js --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "node esbuild.js --production && npm run typecheck",
+    "vscode:prepublish": "npm run package",
+    "vsix": "vsce package --no-dependencies",
+    "publish": "vsce publish --no-dependencies",
+    "publish:ovsx": "ovsx publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.23.0",
+    "ovsx": "^0.10.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@tiptap/core": "^2.10.0",
+    "@tiptap/extension-image": "^2.10.0",
+    "@tiptap/extension-link": "^2.10.0",
+    "@tiptap/pm": "^2.10.0",
+    "@tiptap/react": "^2.10.0",
+    "@tiptap/starter-kit": "^2.10.0",
+    "markdown-it": "^14.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tiptap-markdown": "^0.8.10"
+  }
+}

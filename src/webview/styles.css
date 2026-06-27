@@ -1,0 +1,320 @@
+:root {
+  --mve-font: var(
+    --vscode-font-family,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif
+  );
+  --mve-mono: var(--vscode-editor-font-family, "SF Mono", Menlo, Consolas, monospace);
+  --mve-fg: var(--vscode-foreground, #2b2b2b);
+  --mve-bg: var(--vscode-editor-background, #ffffff);
+  --mve-border: var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
+  --mve-muted: var(--vscode-descriptionForeground, rgba(128, 128, 128, 0.9));
+  --mve-accent: var(--vscode-textLink-foreground, #3794ff);
+  --mve-btn-hover: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.18));
+  --mve-btn-active: var(--vscode-inputOption-activeBackground, rgba(55, 148, 255, 0.25));
+  --mve-code-bg: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.15));
+  --mve-content-width: 740px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--mve-font);
+  color: var(--mve-fg);
+  background: var(--mve-bg);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.mve-loading,
+.mve-loading-overlay {
+  padding: 24px;
+  color: var(--mve-muted);
+  font-size: 13px;
+}
+
+.mve-loading-overlay {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  padding: 4px 10px;
+  background: var(--mve-code-bg);
+  border-radius: 6px;
+  opacity: 0.85;
+}
+
+.mve-layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mve-layout--split .mve-root {
+  border-right: 1px solid var(--mve-border);
+}
+
+.mve-layout--split {
+  flex-direction: row;
+}
+
+.mve-layout--split .mve-root {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mve-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ---- Toolbar ------------------------------------------------------------ */
+
+.mve-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--mve-border);
+  background: var(--mve-bg);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.mve-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mve-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.mve-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--mve-border);
+  margin: 0 4px;
+}
+
+.mve-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--mve-fg);
+  font-family: var(--mve-font);
+  font-size: 13px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.12s ease;
+}
+
+.mve-btn:hover {
+  background: var(--mve-btn-hover);
+}
+
+.mve-btn:focus-visible {
+  outline: 1px solid var(--mve-accent);
+  outline-offset: 1px;
+}
+
+.mve-btn--active {
+  background: var(--mve-btn-active);
+  color: var(--mve-accent);
+}
+
+.mve-btn--accent {
+  color: var(--mve-accent);
+}
+
+/* ---- Inline forms (link / imagem) -------------------------------------- */
+
+.mve-inline-form {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--mve-border);
+  background: var(--mve-code-bg);
+}
+
+.mve-inline-form input {
+  flex: 1 1 auto;
+  background: var(--vscode-input-background, var(--mve-bg));
+  color: var(--vscode-input-foreground, var(--mve-fg));
+  border: 1px solid var(--vscode-input-border, var(--mve-border));
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-family: var(--mve-font);
+  font-size: 13px;
+}
+
+.mve-inline-form input:focus {
+  outline: 1px solid var(--mve-accent);
+}
+
+/* ---- Área editável (estilo Notion) ------------------------------------- */
+
+.mve-editor-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.mve-prose {
+  max-width: var(--mve-content-width);
+  margin: 0 auto;
+  padding: 40px 56px 120px;
+}
+
+.mve-prose:focus {
+  outline: none;
+}
+
+.mve-prose .ProseMirror {
+  outline: none;
+}
+
+.mve-prose h1,
+.mve-prose h2,
+.mve-prose h3,
+.mve-prose h4,
+.mve-prose h5,
+.mve-prose h6 {
+  font-weight: 650;
+  line-height: 1.3;
+  margin: 1.4em 0 0.5em;
+}
+
+.mve-prose h1 {
+  font-size: 2em;
+}
+.mve-prose h2 {
+  font-size: 1.5em;
+}
+.mve-prose h3 {
+  font-size: 1.25em;
+}
+
+.mve-prose p {
+  margin: 0.55em 0;
+}
+
+.mve-prose a {
+  color: var(--mve-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.mve-prose ul,
+.mve-prose ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.mve-prose li {
+  margin: 0.15em 0;
+}
+
+.mve-prose blockquote {
+  margin: 0.8em 0;
+  padding: 2px 0 2px 16px;
+  border-left: 3px solid var(--mve-accent);
+  color: var(--mve-muted);
+}
+
+.mve-prose code {
+  font-family: var(--mve-mono);
+  font-size: 0.88em;
+  background: var(--mve-code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+.mve-prose pre {
+  font-family: var(--mve-mono);
+  background: var(--mve-code-bg);
+  padding: 14px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.8em 0;
+}
+
+.mve-prose pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.88em;
+}
+
+.mve-prose img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 0.4em 0;
+}
+
+.mve-prose hr {
+  border: none;
+  border-top: 1px solid var(--mve-border);
+  margin: 1.6em 0;
+}
+
+/* Placeholder do parágrafo vazio inicial */
+.mve-prose .ProseMirror p.is-editor-empty:first-child::before {
+  content: "Comece a escrever…";
+  color: var(--mve-muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ---- Preview lateral ---------------------------------------------------- */
+
+.mve-preview {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--mve-bg);
+}
+
+.mve-preview-label {
+  position: sticky;
+  top: 0;
+  padding: 8px 16px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mve-muted);
+  border-bottom: 1px solid var(--mve-border);
+  background: var(--mve-bg);
+}
+
+.mve-preview-body {
+  padding-top: 24px;
+}
