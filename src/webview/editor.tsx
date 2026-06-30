@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from "react";
-import { EditorContent } from "@tiptap/react";
+import { EditorContent, BubbleMenu } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
+import type { CalloutVariant } from "./extensions/callout";
 
 interface VisualEditorProps {
   editor: Editor;
@@ -9,7 +10,6 @@ interface VisualEditorProps {
   previewVisible: boolean;
 }
 
-/** Insere uma imagem (data URL) lida de um File. */
 function readImageAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -30,8 +30,6 @@ export function VisualEditor({
   const [imageOpen, setImageOpen] = useState(false);
   const [imageValue, setImageValue] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  // ---- Ações da toolbar ---------------------------------------------------
 
   const toggle = (fn: () => void) => () => {
     fn();
@@ -78,14 +76,12 @@ export function VisualEditor({
           const dataUrl = await readImageAsDataUrl(file);
           editor.chain().focus().setImage({ src: dataUrl }).run();
         } catch {
-          /* ignora arquivos que não puderam ser lidos */
+          /* ignora erros de leitura */
         }
       }
     },
     [editor]
   );
-
-  // ---- Drag & drop / paste de imagens ------------------------------------
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
@@ -101,16 +97,12 @@ export function VisualEditor({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
     const items = e.clipboardData?.items;
-    if (!items) {
-      return;
-    }
+    if (!items) return;
     const files: File[] = [];
     for (const item of Array.from(items)) {
       if (item.kind === "file" && item.type.startsWith("image/")) {
         const f = item.getAsFile();
-        if (f) {
-          files.push(f);
-        }
+        if (f) files.push(f);
       }
     }
     if (files.length > 0) {
@@ -122,14 +114,80 @@ export function VisualEditor({
   const isActive = (name: string, attrs?: Record<string, unknown>) =>
     editor.isActive(name, attrs) ? "mve-btn mve-btn--active" : "mve-btn";
 
+  const insertCallout = (type: CalloutVariant) => {
+    editor.chain().focus().insertContent({
+      type: "callout",
+      attrs: { type },
+      content: [{ type: "paragraph" }],
+    }).run();
+  };
+
+  const insertToggle = () => {
+    editor.chain().focus().insertContent({
+      type: "toggle",
+      attrs: { summary: "Clique para expandir" },
+      content: [{ type: "paragraph" }],
+    }).run();
+  };
+
   return (
     <div className="mve-root">
+      {/* ── Bubble Menu (aparece ao selecionar texto) ─────────────────── */}
+      <BubbleMenu
+        editor={editor}
+        tippyOptions={{ duration: 80, placement: "top" }}
+        shouldShow={({ state }) => {
+          const { selection } = state;
+          if (selection.empty) return false;
+          if (editor.isActive("codeBlock")) return false;
+          return true;
+        }}
+        className="mve-bubble-menu"
+      >
+        <button
+          className={editor.isActive("bold") ? "mve-bm-btn mve-bm-btn--active" : "mve-bm-btn"}
+          title="Negrito"
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBold().run(); }}
+        >
+          <b>B</b>
+        </button>
+        <button
+          className={editor.isActive("italic") ? "mve-bm-btn mve-bm-btn--active" : "mve-bm-btn"}
+          title="Itálico"
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleItalic().run(); }}
+        >
+          <i>I</i>
+        </button>
+        <button
+          className={editor.isActive("strike") ? "mve-bm-btn mve-bm-btn--active" : "mve-bm-btn"}
+          title="Tachado"
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleStrike().run(); }}
+        >
+          <s>S</s>
+        </button>
+        <button
+          className={editor.isActive("code") ? "mve-bm-btn mve-bm-btn--active" : "mve-bm-btn"}
+          title="Código inline"
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleCode().run(); }}
+        >
+          {"</>"}
+        </button>
+        <span className="mve-bm-sep" />
+        <button
+          className={editor.isActive("link") ? "mve-bm-btn mve-bm-btn--active" : "mve-bm-btn"}
+          title="Link"
+          onMouseDown={(e) => { e.preventDefault(); openLink(); }}
+        >
+          🔗
+        </button>
+      </BubbleMenu>
+
+      {/* ── Toolbar principal ─────────────────────────────────────────── */}
       <div className="mve-toolbar" role="toolbar" aria-label="Formatação">
         <div className="mve-toolbar-group">
           <button
             className={isActive("bold")}
             title="Negrito (Ctrl+B)"
-            aria-label="Negrito"
             onClick={toggle(() => editor.chain().focus().toggleBold().run())}
           >
             <b>B</b>
@@ -137,7 +195,6 @@ export function VisualEditor({
           <button
             className={isActive("italic")}
             title="Itálico (Ctrl+I)"
-            aria-label="Itálico"
             onClick={toggle(() => editor.chain().focus().toggleItalic().run())}
           >
             <i>I</i>
@@ -145,7 +202,6 @@ export function VisualEditor({
           <button
             className={isActive("strike")}
             title="Tachado"
-            aria-label="Tachado"
             onClick={toggle(() => editor.chain().focus().toggleStrike().run())}
           >
             <s>S</s>
@@ -153,7 +209,6 @@ export function VisualEditor({
           <button
             className={isActive("code")}
             title="Código inline"
-            aria-label="Código inline"
             onClick={toggle(() => editor.chain().focus().toggleCode().run())}
           >
             {"</>"}
@@ -166,27 +221,21 @@ export function VisualEditor({
           <button
             className={isActive("heading", { level: 1 })}
             title="Título 1"
-            onClick={toggle(() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
-            )}
+            onClick={toggle(() => editor.chain().focus().toggleHeading({ level: 1 }).run())}
           >
             H1
           </button>
           <button
             className={isActive("heading", { level: 2 })}
             title="Título 2"
-            onClick={toggle(() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            )}
+            onClick={toggle(() => editor.chain().focus().toggleHeading({ level: 2 }).run())}
           >
             H2
           </button>
           <button
             className={isActive("heading", { level: 3 })}
             title="Título 3"
-            onClick={toggle(() =>
-              editor.chain().focus().toggleHeading({ level: 3 }).run()
-            )}
+            onClick={toggle(() => editor.chain().focus().toggleHeading({ level: 3 }).run())}
           >
             H3
           </button>
@@ -198,42 +247,64 @@ export function VisualEditor({
           <button
             className={isActive("bulletList")}
             title="Lista com marcadores"
-            aria-label="Lista com marcadores"
-            onClick={toggle(() =>
-              editor.chain().focus().toggleBulletList().run()
-            )}
+            onClick={toggle(() => editor.chain().focus().toggleBulletList().run())}
           >
             • —
           </button>
           <button
             className={isActive("orderedList")}
             title="Lista numerada"
-            aria-label="Lista numerada"
-            onClick={toggle(() =>
-              editor.chain().focus().toggleOrderedList().run()
-            )}
+            onClick={toggle(() => editor.chain().focus().toggleOrderedList().run())}
           >
             1. —
           </button>
           <button
             className={isActive("blockquote")}
             title="Citação"
-            aria-label="Citação"
-            onClick={toggle(() =>
-              editor.chain().focus().toggleBlockquote().run()
-            )}
+            onClick={toggle(() => editor.chain().focus().toggleBlockquote().run())}
           >
             ❝
           </button>
           <button
             className={isActive("codeBlock")}
             title="Bloco de código"
-            aria-label="Bloco de código"
-            onClick={toggle(() =>
-              editor.chain().focus().toggleCodeBlock().run()
-            )}
+            onClick={toggle(() => editor.chain().focus().toggleCodeBlock().run())}
           >
-            { "{ }" }
+            {"{ }"}
+          </button>
+        </div>
+
+        <span className="mve-sep" />
+
+        {/* ── Callouts ─────────────────────────────────────────────── */}
+        <div className="mve-toolbar-group">
+          <button
+            className={isActive("callout", { type: "info" })}
+            title="Note (ℹ️)"
+            onClick={() => insertCallout("info")}
+          >
+            ℹ️
+          </button>
+          <button
+            className={isActive("callout", { type: "tip" })}
+            title="Tip (💡)"
+            onClick={() => insertCallout("tip")}
+          >
+            💡
+          </button>
+          <button
+            className={isActive("callout", { type: "warning" })}
+            title="Warning (⚠️)"
+            onClick={() => insertCallout("warning")}
+          >
+            ⚠️
+          </button>
+          <button
+            className="mve-btn"
+            title="Toggle colapsável"
+            onClick={() => insertToggle()}
+          >
+            ▶
           </button>
         </div>
 
@@ -243,7 +314,6 @@ export function VisualEditor({
           <button
             className={editor.isActive("link") ? "mve-btn mve-btn--active" : "mve-btn"}
             title="Inserir/editar link"
-            aria-label="Link"
             onClick={openLink}
           >
             🔗
@@ -251,18 +321,13 @@ export function VisualEditor({
           <button
             className="mve-btn"
             title="Inserir imagem por URL"
-            aria-label="Imagem"
-            onClick={() => {
-              setImageOpen(true);
-              setLinkOpen(false);
-            }}
+            onClick={() => { setImageOpen(true); setLinkOpen(false); }}
           >
             🖼
           </button>
           <button
             className="mve-btn"
             title="Enviar imagem do computador"
-            aria-label="Upload de imagem"
             onClick={() => fileInputRef.current?.click()}
           >
             ⤒
@@ -274,9 +339,7 @@ export function VisualEditor({
             multiple
             style={{ display: "none" }}
             onChange={(e) => {
-              if (e.target.files) {
-                void insertImageFiles(e.target.files);
-              }
+              if (e.target.files) void insertImageFiles(e.target.files);
               e.target.value = "";
             }}
           />
@@ -311,20 +374,12 @@ export function VisualEditor({
             value={linkValue}
             onChange={(e) => setLinkValue(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                applyLink();
-              }
-              if (e.key === "Escape") {
-                setLinkOpen(false);
-              }
+              if (e.key === "Enter") applyLink();
+              if (e.key === "Escape") setLinkOpen(false);
             }}
           />
-          <button className="mve-btn" onClick={applyLink}>
-            Aplicar
-          </button>
-          <button className="mve-btn" onClick={() => setLinkOpen(false)}>
-            Cancelar
-          </button>
+          <button className="mve-btn" onClick={applyLink}>Aplicar</button>
+          <button className="mve-btn" onClick={() => setLinkOpen(false)}>Cancelar</button>
         </div>
       )}
 
@@ -337,20 +392,12 @@ export function VisualEditor({
             value={imageValue}
             onChange={(e) => setImageValue(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                applyImage();
-              }
-              if (e.key === "Escape") {
-                setImageOpen(false);
-              }
+              if (e.key === "Enter") applyImage();
+              if (e.key === "Escape") setImageOpen(false);
             }}
           />
-          <button className="mve-btn" onClick={applyImage}>
-            Inserir
-          </button>
-          <button className="mve-btn" onClick={() => setImageOpen(false)}>
-            Cancelar
-          </button>
+          <button className="mve-btn" onClick={applyImage}>Inserir</button>
+          <button className="mve-btn" onClick={() => setImageOpen(false)}>Cancelar</button>
         </div>
       )}
 

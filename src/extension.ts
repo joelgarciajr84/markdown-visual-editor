@@ -117,15 +117,48 @@ class MarkdownVisualEditorProvider implements vscode.CustomTextEditorProvider {
   ): Promise<void> {
     const webview = webviewPanel.webview;
 
+    // Permite carregar recursos do workspace inteiro (necessário para imagens locais).
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+    const docParent = vscode.Uri.joinPath(document.uri, "..");
+
     webview.options = {
       enableScripts: true,
       localResourceRoots: [
         vscode.Uri.joinPath(this.context.extensionUri, "dist"),
         vscode.Uri.joinPath(this.context.extensionUri, "media"),
+        workspaceFolder?.uri ?? docParent,
       ],
     };
 
     webview.html = this.getHtmlForWebview(webview);
+
+    // Guarda o mapeamento webviewUri → src original para reversão ao salvar.
+    const uriMap = new Map<string, string>();
+
+    // Converte caminhos relativos de imagens para URIs do webview (para exibição).
+    const toWebviewMarkdown = (text: string): string =>
+      text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+        if (/^https?:\/\/|^data:|^vscode-webview-resource:/.test(src)) {
+          return match;
+        }
+        try {
+          const fileUri = vscode.Uri.joinPath(docParent, src);
+          const wvUri = webview.asWebviewUri(fileUri).toString();
+          uriMap.set(wvUri, src);
+          return `![${alt}](${wvUri})`;
+        } catch {
+          return match;
+        }
+      });
+
+    // Reverte URIs do webview de volta para os caminhos relativos originais.
+    const fromWebviewMarkdown = (text: string): string =>
+      text.replace(/!\[([^\]]*)\]\((vscode-webview-resource:[^)]+)\)/g,
+        (match, alt, wvSrc) => {
+          const original = uriMap.get(wvSrc);
+          return original ? `![${alt}](${original})` : match;
+        }
+      );
 
     // Rastreia qual documento está ativo neste editor visual.
     const trackActive = () => {
@@ -146,7 +179,7 @@ class MarkdownVisualEditorProvider implements vscode.CustomTextEditorProvider {
     const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(
       (e) => {
         if (e.document.uri.toString() === document.uri.toString()) {
-          post({ type: "update", text: document.getText() });
+          post({ type: "update", text: toWebviewMarkdown(document.getText()) });
         }
       }
     );
@@ -158,10 +191,10 @@ class MarkdownVisualEditorProvider implements vscode.CustomTextEditorProvider {
     webview.onDidReceiveMessage(async (message: WebviewToExtensionMessage) => {
       switch (message.type) {
         case "ready":
-          post({ type: "init", text: document.getText() });
+          post({ type: "init", text: toWebviewMarkdown(document.getText()) });
           return;
         case "edit":
-          await this.updateTextDocument(document, message.text);
+          await this.updateTextDocument(document, fromWebviewMarkdown(message.text));
           return;
         case "switchToSource":
           await vscode.commands.executeCommand(

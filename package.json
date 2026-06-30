@@ -1,8 +1,8 @@
 {
   "name": "markdown-visual-editor",
-  "displayName": "Markdown Visual Editor",
-  "description": "Edite arquivos Markdown em modo WYSIWYG (visual, tipo Notion/Typora) dentro do VS Code, com sincronização bidirecional e alternância para o editor de código.",
-  "version": "0.1.0",
+  "displayName": "Markdown WYSIWYG Editor",
+  "description": "Edit Markdown files visually inside VS Code — WYSIWYG rich-text editing with real-time bidirectional sync and one-click toggle back to source.",
+  "version": "0.3.0",
   "publisher": "JoelGarciaJr",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -30,8 +30,12 @@
     "markdown",
     "wysiwyg",
     "editor",
+    "visual",
+    "rich-text",
     "notion",
-    "typora"
+    "typora",
+    "block-editor",
+    "prose"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [],
@@ -122,19 +126,27 @@
     "@types/vscode": "^1.80.0",
     "@vscode/vsce": "^3.2.0",
     "esbuild": "^0.23.0",
+    "gifsicle": "^7.0.1",
     "ovsx": "^0.10.0",
+    "sharp": "^0.35.2",
     "typescript": "^5.5.0"
   },
   "dependencies": {
     "@tiptap/core": "^2.10.0",
     "@tiptap/extension-image": "^2.10.0",
     "@tiptap/extension-link": "^2.10.0",
+    "@tiptap/extension-placeholder": "^2.27.2",
     "@tiptap/pm": "^2.10.0",
     "@tiptap/react": "^2.10.0",
     "@tiptap/starter-kit": "^2.10.0",
+    "@tiptap/suggestion": "^2.27.2",
     "markdown-it": "^14.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tiptap-markdown": "^0.8.10"
+  },
+  "allowScripts": {
+    "gifsicle@7.0.1": true,
+    "sharp@0.35.2": true
   }
 }

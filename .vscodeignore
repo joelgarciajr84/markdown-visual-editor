@@ -1,5 +1,6 @@
 .vscode/**
 .github/**
+.claude/**
 src/**
 node_modules/**
 **/*.map
@@ -8,6 +9,7 @@ esbuild.js
 .gitignore
 .vscodeignore
 PUBLISHING.md
+demo/**
 media/icon.svg
 **/*.ts
 **/*.tsx
