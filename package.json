@@ -1,6 +1,6 @@
 {
   "name": "markdown-visual-editor",
-  "displayName": "Markdown WYSIWYG Editor",
+  "displayName": "Markdown Prose Editor",
   "description": "Edit Markdown files visually inside VS Code — WYSIWYG rich-text editing with real-time bidirectional sync and one-click toggle back to source.",
   "version": "0.3.0",
   "publisher": "JoelGarciaJr",
