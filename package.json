@@ -1,8 +1,8 @@
 {
   "name": "markdown-visual-editor",
-  "displayName": "Markdown Prose Editor",
+  "displayName": "Markdown Flow",
   "description": "Edit Markdown files visually inside VS Code — WYSIWYG rich-text editing with real-time bidirectional sync and one-click toggle back to source.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "JoelGarciaJr",
   "license": "MIT",
   "icon": "media/icon.png",
