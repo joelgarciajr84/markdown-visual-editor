@@ -132,18 +132,18 @@
     "typescript": "^5.5.0"
   },
   "dependencies": {
-    "@tiptap/core": "^2.10.0",
-    "@tiptap/extension-image": "^2.10.0",
-    "@tiptap/extension-link": "^2.10.0",
-    "@tiptap/extension-placeholder": "^2.27.2",
+    "@tiptap/core": "^3.31.0",
+    "@tiptap/extension-image": "^3.31.0",
+    "@tiptap/extension-link": "^3.31.0",
+    "@tiptap/extension-placeholder": "^3.31.0",
     "@tiptap/pm": "^2.10.0",
-    "@tiptap/react": "^2.10.0",
-    "@tiptap/starter-kit": "^2.10.0",
-    "@tiptap/suggestion": "^2.27.2",
+    "@tiptap/react": "^3.31.0",
+    "@tiptap/starter-kit": "^3.31.0",
+    "@tiptap/suggestion": "^3.31.0",
     "markdown-it": "^14.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tiptap-markdown": "^0.8.10"
+    "tiptap-markdown": "^0.9.0"
   },
   "allowScripts": {
     "gifsicle@7.0.1": true,
